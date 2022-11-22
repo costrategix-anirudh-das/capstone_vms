@@ -1,0 +1,25 @@
+services:
+  app:
+    container_name: springboot-mysql
+    image: springboot-mysql
+    build: ./
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql_db
+    links: 
+      - mysql_db:app_db
+  mysql_db:
+    image: "mysql:8.0"
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD:hbstudent
+      - MYSQL_USER:hbstudent
+      - MYSQL_PASSWORD:hbstudent
+      - MYSQL_DATABASE:capstone_vms
+
+
+  
+
+  
