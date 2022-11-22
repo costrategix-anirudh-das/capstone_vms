@@ -35,18 +35,39 @@ public class Invite {
 	@Column(name="userId")
 	private int userId;
 	
+	@Column(name="mailStatus")	
+	private int mailStatus;
+	
 	public Invite() {
 		
 	}
 
-	public Invite(String emailAddress, String inviteToken,  int organizationId,
-			int userId) {
 
+	public int getMailStatus() {
+		return mailStatus;
+	}
+
+
+
+
+	public void setMailStatus(int mailStatus) {
+		this.mailStatus = mailStatus;
+	}
+
+
+
+
+	public Invite(String emailAddress, String inviteToken, int organizationId,
+			int userId, int mailStatus) {
+		super();
 		this.emailAddress = emailAddress;
 		this.inviteToken = inviteToken;
 		this.organizationId = organizationId;
 		this.userId = userId;
+		this.mailStatus = mailStatus;
 	}
+
+
 
 	public int getId() {
 		return id;

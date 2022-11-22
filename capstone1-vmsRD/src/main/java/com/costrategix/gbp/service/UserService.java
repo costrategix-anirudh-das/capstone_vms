@@ -125,7 +125,7 @@ public class UserService {
 		//user.setSecurityHash(PasswordEncryption.encrypt(user.getSecurityHash()));
 		Optional<UserAccountStatus> status = acctRepo.findById(user.getStatusId());
 		user.setUserAccountStatus(status.get());
-		
+
 		String email = user.getEmailAdress();
 		String phn = user.getPhoneNumber();
 		
@@ -141,11 +141,17 @@ public class UserService {
 			System.out.println("valid");
 			LOGGER.info("Finding user by email in UserService(add_user)");
 			User newUser = userRepo.findByEmailAdress(email).get();
-			Invite invite = new Invite(email,token,user.getOrgid(),newUser.getId());
+			Invite invite = new Invite(email,token,user.getOrgid(),newUser.getId(),0);
 			inviteRepo.save(invite);
-			String RegisterLink ="RegisterLink/?token=" + token;
-			send_email.sendEmail(email, RegisterLink,1,newUser.getFirstName(),newUser.getLastName());
-			LOGGER.info("Sending mail successful from UserService(add_user)");
+			//LocalDateTime.now().range()
+			if(user.getLdt().getHour()>=10 && user.getLdt().getHour()<16) {
+				String RegisterLink ="RegisterLink/?token=" + token;
+				send_email.sendEmail(email, RegisterLink,1,newUser.getFirstName(),newUser.getLastName());
+				LOGGER.info("Sending mail successful from UserService(add_user)");
+				invite.setMailStatus(1);
+				inviteRepo.save(invite);
+				
+			}
 			return user;
 		}
 		

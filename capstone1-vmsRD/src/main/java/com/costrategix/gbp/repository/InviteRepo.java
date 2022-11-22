@@ -1,5 +1,6 @@
 package com.costrategix.gbp.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,5 @@ import com.costrategix.gbp.entity.Invite;
 public interface InviteRepo extends JpaRepository<Invite,Integer>{
 	public Optional<Invite> findByInviteToken(String token);
 	public Long removeByUserId(int userId);
+	public Optional<List<Invite>> findByMailStatus(int status);
 }

@@ -1,6 +1,9 @@
 package com.costrategix.gbp.common;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -9,14 +12,24 @@ import org.aspectj.apache.bcel.classfile.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.costrategix.gbp.entity.EmailTemplate;
+import com.costrategix.gbp.entity.Invite;
 import com.costrategix.gbp.entity.User;
 import com.costrategix.gbp.repository.EmailTemplateRepo;
+import com.costrategix.gbp.repository.InviteRepo;
+import com.costrategix.gbp.repository.UserAccountRepo;
+import com.costrategix.gbp.repository.UserRepo;
+
+import net.bytebuddy.utility.RandomString;
 
 
 @Component
+@EnableAsync
 public class Email {
 	
 	@Autowired
@@ -24,6 +37,15 @@ public class Email {
 	
 	@Autowired
 	private EmailTemplateRepo emailRepo;
+	
+	@Autowired
+	private InviteRepo inviteRepo;
+
+	@Autowired
+	private UserRepo userRepo;
+	
+	@Autowired
+	private UserAccountRepo acctRepo; 
 	
 	public void sendEmail(String recipientEmail, String link,int template_id,String firstName,String LastName)
 	        throws MessagingException, UnsupportedEncodingException {
@@ -76,4 +98,50 @@ public class Email {
 	    mailSender.send(message);
 	    
 	}
+	
+	public String token_gen() {
+		//LOGGER.info("Generating token in UserService(token_gen)");
+		String token = RandomString.make(30);
+		Invite in=null;
+		try {
+			//LOGGER.info("Finding by invite token in UserService(token_gen)");
+			 in = inviteRepo.findByInviteToken(token).get();
+			 return token_gen();
+		}catch(NoSuchElementException e) {
+			//LOGGER.warn("No Such token in db UserService(token_gen): ",token);
+			return token;
+		}
+	}
+	
+	@Async
+	@Scheduled(cron="0 */1 * * * *")
+	public void scheduled_register_emails() throws UnsupportedEncodingException, MessagingException {
+		Optional<List<Invite>> P;
+		List<Invite> L;
+		System.out.println("HERE HERE");
+		try {
+			
+			P = inviteRepo.findByMailStatus(0);
+			if(P.get().isEmpty()) {
+				throw new Exception();
+			}
+			else {
+				L = P.get();
+				String token = token_gen();
+				for(Invite i:L) {
+					User u = userRepo.findById(i.getUserId()).get();
+					String RegisterLink ="RegisterLink/?token=" + token;
+					sendEmail(i.getEmailAddress(), RegisterLink,1,u.getFirstName(),u.getLastName());
+					i.setMailStatus(1);
+					inviteRepo.save(i);
+			}
+			}
+
+		}
+		catch(Exception e) {
+			System.out.println("No Mails to send");
+		}
+		
+	}
+	
 }
