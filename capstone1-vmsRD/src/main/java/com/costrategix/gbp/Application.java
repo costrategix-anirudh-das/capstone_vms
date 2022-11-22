@@ -23,7 +23,7 @@ public class Application {
 //	    body=body.replace("{First name} ","Naveen");
 //	    body=body.replace("{Last Name}","MS");
 //	    body=body.replace("[Activation Link]", "Hello");
-//	    System.out.println(body);
+	    System.out.println("hello");
 		SpringApplication.run(Application.class, args);		
 		LOGGER.info("Info level log message");
 	    LOGGER.debug("Debug level log message");
