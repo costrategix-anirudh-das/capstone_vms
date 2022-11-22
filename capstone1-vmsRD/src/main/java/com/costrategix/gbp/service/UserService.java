@@ -250,8 +250,11 @@ public class UserService {
 	}
 	
 	@Cacheable(key= "#ord_id", value = "User2")
-	public List<UserResponseDto> getusers(int org_id){		
+	public List<UserResponseDto> getusers(int org_id){	
+		
+		
 		 List<User> users = userRepo.findUserByOrgid(org_id);
+		 System.out.println(users);
 		 List<UserResponseDto> result = new ArrayList<>();
 		 for (User user: users)
 		 {
