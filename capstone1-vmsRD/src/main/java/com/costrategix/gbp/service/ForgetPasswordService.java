@@ -172,6 +172,7 @@ public class ForgetPasswordService {
 		User user = userRepo.findByEmailAdress(email).get();
     	MultiFactorRequest multiFactorRequest = multiFactorRequestRepo.findByUserId(user.getId()).get();
     	LocalDateTime start = multiFactorRequest.getCreatedtime();
+    	System.out.println("Checking github or gitlab");
     	start = start.plusDays(30);
     	if (start.compareTo(LocalDateTime.now())>=0) {
     		return user;
